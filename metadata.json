@@ -1,0 +1,5 @@
+{
+  "name": "Burger Rush",
+  "description": "A fun, fast-paced, team-based burger building game. Two teams compete to assemble customer orders correctly and quickly. The fastest team gets to answer a quiz for bonus points. The team with the highest score at the end of all rounds wins.",
+  "requestFramePermissions": []
+}
