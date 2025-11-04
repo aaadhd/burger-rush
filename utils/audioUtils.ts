@@ -1,249 +1,193 @@
-// Web Audio API 기반 효과음 시스템
+// 오디오 유틸리티 함수들
+
 class AudioManager {
   private audioContext: AudioContext | null = null;
-  private sounds: Map<string, AudioBuffer> = new Map();
-  private volume: number = 0.7;
+  private masterVolume = 0.3;
+  private sfxVolume = 0.5;
+  private musicVolume = 0.2;
+  private backgroundMusic: HTMLAudioElement | null = null;
 
-  constructor() {
-    // 사용자 상호작용 후 AudioContext 초기화
-    this.initializeOnInteraction();
-  }
-
-  private initializeOnInteraction() {
-    const initAudio = () => {
-      if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        this.generateSounds();
-        document.removeEventListener('click', initAudio);
-        document.removeEventListener('touchstart', initAudio);
-        document.removeEventListener('keydown', initAudio);
-      }
-    };
-
-    document.addEventListener('click', initAudio);
-    document.addEventListener('touchstart', initAudio);
-    document.addEventListener('keydown', initAudio);
-  }
-
-  private generateSounds() {
-    if (!this.audioContext) return;
-
-    // 재료 클릭 소리 (부드러운 팝)
-    this.sounds.set('ingredient-click', this.generateTone(800, 0.1, 'sine'));
-    
-    // 올바른 재료 소리 (상승음)
-    this.sounds.set('correct-ingredient', this.generateTone(600, 0.15, 'triangle'));
-    
-    // 잘못된 재료 소리 (부정적 톤)
-    this.sounds.set('wrong-ingredient', this.generateNoise(0.2));
-    
-    // 주문 완성 소리 (성공음)
-    this.sounds.set('order-complete', this.generateChord([523, 659, 784], 0.5));
-    
-    // 퀴즈 정답 소리 (승리음)
-    this.sounds.set('quiz-correct', this.generateMelody([523, 659, 784, 1047], 0.3));
-    
-    // 퀴즈 오답 소리 (실패음)
-    this.sounds.set('quiz-wrong', this.generateDescendingTone(400, 200, 0.4));
-    
-    // 라운드 시작 카운트다운
-    this.sounds.set('countdown', this.generateTone(880, 0.3, 'square'));
-    
-    // 게임 시작
-    this.sounds.set('game-start', this.generateTone(1047, 0.5, 'triangle'));
-    
-    // 콤보 소리
-    this.sounds.set('combo', this.generateRisingMelody([440, 554, 659, 831], 0.4));
-    
-    // 시간 초과
-    this.sounds.set('timeout', this.generateWarningTone(0.6));
-  }
-
-  private generateTone(frequency: number, duration: number, type: OscillatorType = 'sine'): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * duration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < data.length; i++) {
-      const angle = (i / this.audioContext.sampleRate) * frequency * 2 * Math.PI;
-      let sample = 0;
-      
-      switch (type) {
-        case 'sine':
-          sample = Math.sin(angle);
-          break;
-        case 'triangle':
-          sample = (2 / Math.PI) * Math.asin(Math.sin(angle));
-          break;
-        case 'square':
-          sample = Math.sign(Math.sin(angle));
-          break;
-        case 'sawtooth':
-          sample = (2 / Math.PI) * (angle % (2 * Math.PI) - Math.PI);
-          break;
-      }
-      
-      // 볼륨 엔벨로프 적용
-      const envelope = Math.exp(-i / (this.audioContext.sampleRate * 0.3));
-      data[i] = sample * envelope * 0.3;
+  // AudioContext 초기화
+  private initAudioContext() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    
-    return buffer;
+    return this.audioContext;
   }
 
-  private generateChord(frequencies: number[], duration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * duration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < data.length; i++) {
-      let sample = 0;
-      frequencies.forEach(freq => {
-        const angle = (i / this.audioContext!.sampleRate) * freq * 2 * Math.PI;
-        sample += Math.sin(angle) / frequencies.length;
-      });
-      
-      const envelope = Math.exp(-i / (this.audioContext.sampleRate * 0.5));
-      data[i] = sample * envelope * 0.4;
-    }
-    
-    return buffer;
-  }
-
-  private generateMelody(frequencies: number[], noteDuration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const totalDuration = frequencies.length * noteDuration;
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * totalDuration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    const samplesPerNote = Math.floor(this.audioContext.sampleRate * noteDuration);
-    
-    frequencies.forEach((freq, noteIndex) => {
-      const startSample = noteIndex * samplesPerNote;
-      for (let i = 0; i < samplesPerNote && startSample + i < data.length; i++) {
-        const angle = (i / this.audioContext!.sampleRate) * freq * 2 * Math.PI;
-        const envelope = Math.exp(-i / (this.audioContext!.sampleRate * 0.2));
-        data[startSample + i] = Math.sin(angle) * envelope * 0.3;
-      }
-    });
-    
-    return buffer;
-  }
-
-  private generateRisingMelody(frequencies: number[], totalDuration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * totalDuration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    const noteDuration = totalDuration / frequencies.length;
-    const samplesPerNote = Math.floor(this.audioContext.sampleRate * noteDuration);
-    
-    frequencies.forEach((freq, noteIndex) => {
-      const startSample = noteIndex * samplesPerNote;
-      for (let i = 0; i < samplesPerNote && startSample + i < data.length; i++) {
-        const angle = (i / this.audioContext!.sampleRate) * freq * 2 * Math.PI;
-        const envelope = 1 - (i / samplesPerNote); // 각 음표가 페이드아웃
-        data[startSample + i] = Math.sin(angle) * envelope * 0.4;
-      }
-    });
-    
-    return buffer;
-  }
-
-  private generateDescendingTone(startFreq: number, endFreq: number, duration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * duration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < data.length; i++) {
-      const progress = i / data.length;
-      const frequency = startFreq + (endFreq - startFreq) * progress;
-      const angle = (i / this.audioContext.sampleRate) * frequency * 2 * Math.PI;
-      const envelope = Math.exp(-i / (this.audioContext.sampleRate * 0.4));
-      data[i] = Math.sin(angle) * envelope * 0.3;
-    }
-    
-    return buffer;
-  }
-
-  private generateWarningTone(duration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * duration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < data.length; i++) {
-      const time = i / this.audioContext.sampleRate;
-      const frequency = 220 + Math.sin(time * 8) * 50; // 진동하는 주파수
-      const angle = time * frequency * 2 * Math.PI;
-      const envelope = Math.sin(time * Math.PI / duration); // 사인파 엔벨로프
-      data[i] = Math.sin(angle) * envelope * 0.4;
-    }
-    
-    return buffer;
-  }
-
-  private generateNoise(duration: number): AudioBuffer {
-    if (!this.audioContext) throw new Error('AudioContext not initialized');
-    
-    const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * duration, this.audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < data.length; i++) {
-      const envelope = Math.exp(-i / (this.audioContext.sampleRate * 0.1));
-      data[i] = (Math.random() * 2 - 1) * envelope * 0.2;
-    }
-    
-    return buffer;
-  }
-
-  public play(soundName: string, volume: number = 1) {
-    if (!this.audioContext || !this.sounds.has(soundName)) return;
-
+  // 효과음 생성 및 재생
+  private playTone(frequency: number, duration: number, volume: number = 0.3, type: OscillatorType = 'sine') {
     try {
-      const buffer = this.sounds.get(soundName)!;
-      const source = this.audioContext.createBufferSource();
-      const gainNode = this.audioContext.createGain();
-      
-      source.buffer = buffer;
-      gainNode.gain.value = this.volume * volume;
-      
-      source.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
-      
-      source.start(0);
+      const ctx = this.initAudioContext();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = type;
+
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume * this.sfxVolume * this.masterVolume, ctx.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + duration);
     } catch (error) {
-      console.warn('오디오 재생 실패:', error);
+      console.warn('Audio playback failed:', error);
     }
   }
 
-  public setVolume(volume: number) {
-    this.volume = Math.max(0, Math.min(1, volume));
+  // 재료 클릭 효과음
+  playIngredientClick() {
+    this.playTone(800, 0.1, 0.2, 'square');
   }
 
-  public getVolume(): number {
-    return this.volume;
+  // 성공 효과음 (올바른 재료) - 더 밝고 짧은 소리
+  playSuccess() {
+    this.playTone(880, 0.1, 0.3, 'sine');  // A5 - 높고 깨끗한 음
+  }
+
+  // 실패 효과음 (잘못된 재료) - 낮고 거친 소리
+  playError() {
+    this.playTone(150, 0.2, 0.3, 'sawtooth');
+  }
+
+  // 햄버거 완성 효과음
+  playBurgerComplete() {
+    setTimeout(() => this.playTone(523, 0.2, 0.4), 0);   // C5
+    setTimeout(() => this.playTone(659, 0.2, 0.4), 150); // E5
+    setTimeout(() => this.playTone(784, 0.2, 0.4), 300); // G5
+    setTimeout(() => this.playTone(1047, 0.4, 0.5), 450); // C6
+  }
+
+  // 퀴즈 정답 효과음
+  playQuizCorrect() {
+    setTimeout(() => this.playTone(659, 0.15, 0.4), 0);   // E5
+    setTimeout(() => this.playTone(784, 0.15, 0.4), 100); // G5
+    setTimeout(() => this.playTone(1047, 0.15, 0.4), 200); // C6
+    setTimeout(() => this.playTone(1319, 0.3, 0.5), 300);  // E6
+  }
+
+  // 퀴즈 오답 효과음
+  playQuizWrong() {
+    setTimeout(() => this.playTone(330, 0.2, 0.4), 0);   // E4
+    setTimeout(() => this.playTone(294, 0.2, 0.4), 150); // D4
+    setTimeout(() => this.playTone(262, 0.4, 0.5), 300); // C4
+  }
+
+  // 콤보 달성 효과음
+  playCombo(comboCount: number) {
+    const baseFreq = 523; // C5
+    for (let i = 0; i < comboCount && i < 5; i++) {
+      setTimeout(() => {
+        this.playTone(baseFreq * Math.pow(1.2, i), 0.15, 0.4 + i * 0.1);
+      }, i * 80);
+    }
+  }
+
+  // 카운트다운 효과음
+  playCountdown(count: number) {
+    if (count > 0) {
+      this.playTone(880, 0.2, 0.3); // A5
+    } else {
+      this.playTone(1047, 0.5, 0.5); // C6 - Go!
+    }
+  }
+
+  // 게임 승리 효과음
+  playVictory() {
+    const melody = [523, 659, 784, 1047, 1319]; // C-E-G-C-E
+    melody.forEach((freq, i) => {
+      setTimeout(() => this.playTone(freq, 0.3, 0.4), i * 200);
+    });
+  }
+
+  // 배경음악 시작 (긴장감 있는 리듬)
+  startBackgroundMusic() {
+    this.stopBackgroundMusic();
+    this.createBackgroundMusic();
+  }
+
+  private createBackgroundMusic() {
+    try {
+      const ctx = this.initAudioContext();
+
+      // 단순한 드럼 비트와 베이스라인 생성
+      const playBeat = () => {
+        // 킥 드럼 (낮은 주파수)
+        setTimeout(() => this.playTone(60, 0.1, this.musicVolume * 0.8, 'sine'), 0);
+        setTimeout(() => this.playTone(60, 0.1, this.musicVolume * 0.8, 'sine'), 500);
+
+        // 스네어 (높은 주파수 노이즈)
+        setTimeout(() => this.playTone(200, 0.05, this.musicVolume * 0.4, 'square'), 250);
+        setTimeout(() => this.playTone(200, 0.05, this.musicVolume * 0.4, 'square'), 750);
+
+        // 베이스라인 (간단한 패턴)
+        setTimeout(() => this.playTone(110, 0.15, this.musicVolume * 0.3, 'sawtooth'), 0);
+        setTimeout(() => this.playTone(146, 0.15, this.musicVolume * 0.3, 'sawtooth'), 250);
+        setTimeout(() => this.playTone(110, 0.15, this.musicVolume * 0.3, 'sawtooth'), 500);
+        setTimeout(() => this.playTone(98, 0.15, this.musicVolume * 0.3, 'sawtooth'), 750);
+      };
+
+      // 1초마다 비트 반복
+      const beatInterval = setInterval(playBeat, 1000);
+
+      // 컴포넌트 언마운트시 정리할 수 있도록 참조 저장
+      (window as any).__backgroundMusicInterval = beatInterval;
+
+    } catch (error) {
+      console.warn('Background music failed:', error);
+    }
+  }
+
+  // 배경음악 정지
+  stopBackgroundMusic() {
+    if ((window as any).__backgroundMusicInterval) {
+      clearInterval((window as any).__backgroundMusicInterval);
+      (window as any).__backgroundMusicInterval = null;
+    }
+  }
+
+  // 볼륨 조절
+  setMasterVolume(volume: number) {
+    this.masterVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  setSfxVolume(volume: number) {
+    this.sfxVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  setMusicVolume(volume: number) {
+    this.musicVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  // 사용자 상호작용 후 AudioContext 활성화
+  async resumeAudioContext() {
+    try {
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+    } catch (error) {
+      console.warn('Failed to resume audio context:', error);
+    }
   }
 }
 
-// 전역 오디오 매니저 인스턴스
-const audioManager = new AudioManager();
+// 싱글톤 인스턴스 생성
+export const audioManager = new AudioManager();
 
-// 게임 효과음 재생 함수들
-export const playSound = {
-  ingredientClick: () => audioManager.play('ingredient-click'),
-  correctIngredient: () => audioManager.play('correct-ingredient'),
-  wrongIngredient: () => audioManager.play('wrong-ingredient'),
-  orderComplete: () => audioManager.play('order-complete'),
-  quizCorrect: () => audioManager.play('quiz-correct'),
-  quizWrong: () => audioManager.play('quiz-wrong'),
-  countdown: () => audioManager.play('countdown'),
-  gameStart: () => audioManager.play('game-start'),
-  combo: () => audioManager.play('combo'),
-  timeout: () => audioManager.play('timeout'),
-};
-
-export { audioManager };
+// 편의 함수들 export
+export const playIngredientClick = () => audioManager.playIngredientClick();
+export const playSuccess = () => audioManager.playSuccess();
+export const playError = () => audioManager.playError();
+export const playBurgerComplete = () => audioManager.playBurgerComplete();
+export const playQuizCorrect = () => audioManager.playQuizCorrect();
+export const playQuizWrong = () => audioManager.playQuizWrong();
+export const playCombo = (count: number) => audioManager.playCombo(count);
+export const playCountdown = (count: number) => audioManager.playCountdown(count);
+export const playVictory = () => audioManager.playVictory();
+export const startBackgroundMusic = () => audioManager.startBackgroundMusic();
+export const stopBackgroundMusic = () => audioManager.stopBackgroundMusic();
+export const resumeAudioContext = () => audioManager.resumeAudioContext();

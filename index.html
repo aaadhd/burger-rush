@@ -17,22 +17,23 @@
             padding: 0;
             background-color: #111;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            /* 상단 여백 추가 */
-            padding-top: env(safe-area-inset-top, 0px);
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         #root {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            min-height: 100vh;
             position: relative;
             display: flex;
             justify-content: center;
-            align-items: center;
-            /* 상단 여백 고려 */
-            padding-top: env(safe-area-inset-top, 0px);
+            align-items: flex-start;
+        }
+        #stage {
+            width: 1280px;
+            height: 800px;
+            position: relative;
+            transform-origin: top center;
+            margin: 0 auto;
         }
         .game-container {
             width: 100%;
@@ -40,8 +41,6 @@
             background: radial-gradient(circle, #a0e9ff 0%, #fff1c1 100%);
             display: flex;
             flex-direction: column;
-            /* 상단 여백 고려 */
-            padding-top: env(safe-area-inset-top, 0px);
         }
         .text-shadow-lg {
             text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
@@ -86,54 +85,30 @@
             from { transform: translate(0, 0) scale(1); opacity: 1; }
             to { transform: translate(var(--target-x), var(--target-y)) scale(0.5); opacity: 0; }
         }
-
-        /* 반응형 스타일 */
-        @media (max-width: 1280px) {
-            .game-container {
-                transform: scale(0.9);
-            }
-        }
-        
-        @media (max-width: 1024px) {
-            .game-container {
-                transform: scale(0.8);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .game-container {
-                transform: scale(0.7);
-            }
-        }
-        
-        @media (max-height: 800px) {
-            .game-container {
-                transform: scale(0.8);
-            }
-        }
-        
-        @media (max-height: 600px) {
-            .game-container {
-                transform: scale(0.6);
-            }
-        }
-
-        /* 상단 여백이 있는 경우 스케일 조정 */
-        @supports (padding-top: env(safe-area-inset-top)) {
-            body {
-                padding-top: env(safe-area-inset-top);
-            }
-            #root {
-                padding-top: env(safe-area-inset-top);
-            }
-            .game-container {
-                padding-top: env(safe-area-inset-top);
-            }
-        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <div id="stage"></div>
+    </div>
     <script type="module" src="./index.tsx"></script>
+    <script>
+        function updateStageScale() {
+            const stage = document.getElementById('stage');
+            if (!stage) return;
+
+            const scaleX = window.innerWidth / 1280;
+            const scaleY = window.innerHeight / 800;
+            const scale = Math.min(scaleX, scaleY);
+
+            stage.style.transform = `scale(${scale})`;
+        }
+
+        // Initial scale
+        updateStageScale();
+
+        // Update on resize
+        window.addEventListener('resize', updateStageScale);
+    </script>
 </body>
 </html>

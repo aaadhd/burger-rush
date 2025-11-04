@@ -1,6 +1,6 @@
 import type { Player, Ingredients, Customer, Quiz, Team } from './types';
 
-export const MAX_ROUNDS = 6;
+export const MAX_ROUNDS = 5;
 export const BASE_COINS = 20;
 
 export const TEAM_MASCOTS: { [key in Team]: string } = {

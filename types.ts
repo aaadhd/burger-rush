@@ -1,5 +1,5 @@
 
-export type GameState = 'start' | 'team-setup' | 'playing' | 'game-over';
+export type GameState = 'start' | 'settings' | 'team-setup' | 'playing' | 'game-over';
 export type Team = 'blue' | 'red';
 
 export interface Player {

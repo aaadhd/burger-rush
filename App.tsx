@@ -1,11 +1,14 @@
 import React from 'react';
 import type { Team } from './types';
-import { useGameLogic } from './hooks/useGameLogic.ts';
+import { useGameLogic } from './hooks/useGameLogic';
 import GameStartScreen from './components/GameStartScreen';
+import GameSettingsModal from './components/GameSettingsModal';
 import TeamSetupScreen from './components/TeamSetupScreen';
 import GameScreen from './components/GameScreen';
 import GameOverScreen from './components/GameOverScreen';
+import MessageBox from './components/MessageBox';
 import { TEAM_MASCOTS } from './constants';
+import { SuccessParticles } from './components/Confetti';
 
 const GameOverSummary: React.FC<{ winner: Team | 'tie' }> = ({ winner }) => {
     let winnerMessage = '';
@@ -35,7 +38,23 @@ const App: React.FC = () => {
   const renderScreen = () => {
     switch (game.gameState) {
       case 'start':
-        return <GameStartScreen onStart={game.handleStartGame} />;
+        return <GameStartScreen onStart={game.handleOpenSettings} />;
+      case 'settings':
+        return (
+          <GameSettingsModal
+            onStart={game.handleStartGameWithSettings}
+            onBack={game.handleBackToStart}
+            gameGuideText="Game Guide"
+            availableLessons={[1, 2, 3, 4, 5, 6, 7, 8]}
+            availableLearningFocus={['Vocabulary', 'Reading', 'Speaking', 'Grammar', 'Writing', 'Action Learning']}
+            maxRounds={12}
+            disabledLessons={[8]}
+            customStyles={{
+              primaryColor: 'purple',
+              buttonColor: 'cyan-500'
+            }}
+          />
+        );
       case 'team-setup':
         return <TeamSetupScreen teams={game.teams} onShuffle={game.handleShuffleTeams} onStart={game.handleStartPlaying} />;
       case 'playing':
@@ -57,6 +76,8 @@ const App: React.FC = () => {
             isRoundActive={game.isRoundActive}
             blueTeamFinished={game.blueTeamFinished}
             redTeamFinished={game.redTeamFinished}
+            blueNewIngredient={game.blueNewIngredient}
+            redNewIngredient={game.redNewIngredient}
             onEndGame={game.handleEndGame}
             onIngredientClick={game.handleIngredientClick}
             onQuizAnswer={game.handleQuizAnswer}
@@ -84,8 +105,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <main className="w-full h-full overflow-hidden">
+    <main style={{ width: '1280px', height: '800px', overflow: 'hidden' }}>
         {renderScreen()}
+        <MessageBox message={game.message} type="info" />
+        <MessageBox message={game.comboMessage} type="combo" />
+
+        {/* 성공 파티클 효과 */}
+        <SuccessParticles trigger={game.showBlueSuccess} teamColor="blue" />
+        <SuccessParticles trigger={game.showRedSuccess} teamColor="red" />
+        <SuccessParticles trigger={game.showComboEffect} teamColor={game.quizWinningTeam || 'blue'} />
     </main>
   );
 };

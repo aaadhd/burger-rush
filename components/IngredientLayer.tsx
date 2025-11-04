@@ -1,17 +1,26 @@
 import React from 'react';
+import { INGREDIENTS } from '../constants';
 
 interface IngredientLayerProps {
   ingredientKey: string;
   isWrong?: boolean;
+  isNew?: boolean;
   style?: React.CSSProperties;
 }
 
-const IngredientLayer: React.FC<IngredientLayerProps> = ({ ingredientKey, isWrong = false, style }) => {
+const IngredientLayer: React.FC<IngredientLayerProps> = ({ ingredientKey, isWrong = false, isNew = false, style }) => {
   let layerStyle: React.CSSProperties = {};
   let content = null;
 
-  const baseClasses = "w-64 absolute transition-all duration-200";
-  const wrongClasses = isWrong ? "stacked-ingredient wrong" : "stacked-ingredient";
+  // 애니메이션 클래스 결정
+  let animationClass = "";
+  if (isWrong) {
+    animationClass = "animate-bounce-wrong";
+  } else if (isNew) {
+    animationClass = "animate-slide-up";
+  }
+
+  const baseClasses = `w-full max-w-[200px] lg:max-w-[320px] absolute transition-all duration-200 ${animationClass}`;
 
   switch (ingredientKey) {
     case 'bun-top':
@@ -55,16 +64,59 @@ const IngredientLayer: React.FC<IngredientLayerProps> = ({ ingredientKey, isWron
       break;
   }
 
+  // 틀린 재료일 때 스타일 수정 (색상 변경 없이 애니메이션만)
   if (isWrong) {
-      layerStyle.animation = 'bounce-off 0.5s ease-out forwards';
-      layerStyle.backgroundColor = '#FFCDD2';
-      layerStyle.borderColor = '#E57373';
+      layerStyle.opacity = 0.8;
   }
 
+  // CSS 애니메이션을 위한 스타일 태그
+  const animationStyles = `
+    @keyframes slide-up {
+      0% {
+        transform: translateY(50px) translateX(-50%);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(0) translateX(-50%);
+        opacity: 1;
+      }
+    }
+
+    @keyframes bounce-wrong {
+      0% {
+        transform: translateY(0) translateX(-50%) scale(1);
+      }
+      25% {
+        transform: translateY(-20px) translateX(-50%) scale(1.1) rotate(5deg);
+      }
+      50% {
+        transform: translateY(10px) translateX(-50%) scale(0.9) rotate(-3deg);
+      }
+      75% {
+        transform: translateY(-10px) translateX(-50%) scale(1.05) rotate(2deg);
+      }
+      100% {
+        transform: translateY(100px) translateX(-50%) scale(0.8) rotate(0deg);
+        opacity: 0;
+      }
+    }
+
+    .animate-slide-up {
+      animation: slide-up 0.3s ease-out;
+    }
+
+    .animate-bounce-wrong {
+      animation: bounce-wrong 0.8s ease-out forwards;
+    }
+  `;
+
   return (
-    <div style={{ ...style, ...layerStyle }} className={baseClasses}>
-      {content}
-    </div>
+    <>
+      <style>{animationStyles}</style>
+      <div style={{ ...style, ...layerStyle }} className={baseClasses}>
+        {content}
+      </div>
+    </>
   );
 };
 

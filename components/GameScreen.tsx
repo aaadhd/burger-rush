@@ -25,6 +25,8 @@ interface GameScreenProps {
   isRoundActive: boolean;
   blueTeamFinished: boolean;
   redTeamFinished: boolean;
+  blueNewIngredient?: string | null;
+  redNewIngredient?: string | null;
   onEndGame: () => void;
   onIngredientClick: (team: Team, ingredient: string) => void;
   onQuizAnswer: (answer: string) => void;
@@ -68,6 +70,7 @@ const GameScreen: React.FC<GameScreenProps> = (props) => {
           isLocked={isBlueLocked}
           wrongIngredient={props.wrongIngredient.team === 'blue' ? props.wrongIngredient.ingredient : null}
           isTeamFinished={props.blueTeamFinished}
+          newlyAddedIngredient={props.blueNewIngredient}
         />
         <AssemblyStation
           team="red"
@@ -76,6 +79,7 @@ const GameScreen: React.FC<GameScreenProps> = (props) => {
           isLocked={isRedLocked}
           wrongIngredient={props.wrongIngredient.team === 'red' ? props.wrongIngredient.ingredient : null}
           isTeamFinished={props.redTeamFinished}
+          newlyAddedIngredient={props.redNewIngredient}
         />
       </div>
 
