@@ -7,7 +7,7 @@ import { playSuccess, playError, playBurgerComplete, playQuizCorrect, playQuizWr
 type GameOverSubState = 'summary' | 'final';
 
 export const useGameLogic = () => {
-    const [gameState, setGameState] = useState<GameState>('start');
+    const [gameState, setGameState] = useState<GameState>('settings');
     const [round, setRound] = useState(1);
     const [scores, setScores] = useState({ blue: 0, red: 0 });
     const [teams, setTeams] = useState<Teams>({ blue: [], red: [] });
@@ -67,7 +67,7 @@ export const useGameLogic = () => {
     };
 
     const handleBackToStart = () => {
-        setGameState('start');
+        setGameState('settings');
     };
 
     const handleStartGameWithSettings = (settings: GameSettings) => {
@@ -76,7 +76,11 @@ export const useGameLogic = () => {
         // 예: settings.rounds를 사용하여 MAX_ROUNDS를 변경할 수 있음
         // 예: settings.quizIncluded를 사용하여 퀴즈 기능을 제어할 수 있음
         initializeTeams();
-        setGameState('team-setup');
+        setGameState('splash');
+        // 2초 후 팀 셋업 화면으로 이동
+        setTimeout(() => {
+            setGameState('team-setup');
+        }, 2000);
     };
 
     const handleStartGame = () => {
@@ -372,11 +376,12 @@ export const useGameLogic = () => {
 
     const handlePlayAgain = () => {
         resetGame();
-        handleStartGame();
+        setGameState('settings');
     };
 
     const handleExitGame = () => {
         resetGame();
+        setGameState('settings');
     };
 
     return {

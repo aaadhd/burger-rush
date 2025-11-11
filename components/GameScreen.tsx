@@ -38,17 +38,17 @@ const GameScreen: React.FC<GameScreenProps> = (props) => {
   const isRedLocked = !props.isRoundActive;
 
   return (
-    <div className="game-container relative flex flex-col justify-between h-full" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div className="game-container relative flex flex-col justify-between h-full">
       <TopBar round={props.round} onEndGame={props.onEndGame} />
 
-      <div className="flex justify-between items-start px-4 lg:px-8 pt-2 lg:pt-4 flex-1" style={{ marginTop: 'calc(env(safe-area-inset-top, 0px) + 80px)' }}>
+      <div className="flex justify-between items-start px-8 pt-4" style={{ marginTop: '56px' }}>
         <TeamInfo
           team="blue"
           score={props.scores.blue}
           players={props.teams.blue}
           activePlayerIndex={props.bluePlayerIndex}
         />
-        
+
         <div className="flex flex-col items-center pt-2">
           <CustomerArea customer={props.customer} emotion={props.customerEmotion} />
           <OrderSequence order={props.order} />
@@ -62,7 +62,7 @@ const GameScreen: React.FC<GameScreenProps> = (props) => {
         />
       </div>
 
-      <div className="w-full max-w-7xl mx-auto h-96 lg:h-[480px] flex justify-around items-end px-4 lg:px-8 pb-4">
+      <div className="w-full max-w-7xl mx-auto flex justify-around items-end px-8 pb-4" style={{ height: '420px' }}>
         <AssemblyStation
           team="blue"
           stackedIngredients={props.blueAssembly}

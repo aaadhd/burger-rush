@@ -44,11 +44,12 @@ const AssemblyStation: React.FC<AssemblyStationProps> = ({
 
   return (
     <div
-      className={`bg-amber-200 border-4 lg:border-8 border-amber-400 rounded-2xl lg:rounded-3xl w-[43.2%] h-full flex flex-col items-center p-2 lg:p-5 shadow-xl lg:shadow-2xl transition-all duration-500 ${
+      className={`bg-amber-200 border-8 border-amber-400 rounded-3xl h-full flex flex-col items-center p-5 shadow-2xl transition-all duration-500 ${
         isTeamFinished ? 'border-green-500 bg-green-100' : ''
       }`}
+      style={{ width: '43.2%' }}
     >
-      <div className="w-[230.4px] lg:w-96 aspect-[3/2] bg-amber-500 rounded-xl lg:rounded-2xl relative flex flex-col-reverse items-center justify-start pt-1 mt-2 lg:mt-3 border-2 lg:border-4 border-amber-600 shadow-inner overflow-hidden px-1 lg:px-2">
+      <div className="bg-amber-500 rounded-2xl relative flex flex-col-reverse items-center justify-start pt-1 mt-3 border-4 border-amber-600 shadow-inner overflow-hidden px-2" style={{ width: '384px', aspectRatio: '3/2' }}>
         {/* Container for the stacked burger */}
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2" style={{ width: 'calc(100% - 8px)' }}>
             {stackedIngredients.map((ingredient, index) => {
@@ -65,9 +66,8 @@ const AssemblyStation: React.FC<AssemblyStationProps> = ({
                     left: '50%',
                     transform: 'translateX(-50%)',
                     width: '100%',
-                    maxWidth: '200px'
+                    maxWidth: '320px'
                   }}
-                  className="lg:max-w-[320px]"
                 />
               );
             })}
@@ -82,9 +82,8 @@ const AssemblyStation: React.FC<AssemblyStationProps> = ({
                         left: '50%',
                         transform: 'translateX(-50%)',
                         width: '100%',
-                        maxWidth: '200px'
+                        maxWidth: '320px'
                     }}
-                    className="lg:max-w-[320px]"
                 />
             )}
         </div>
@@ -92,41 +91,41 @@ const AssemblyStation: React.FC<AssemblyStationProps> = ({
 
       {/* 완성 상태 표시 */}
       {isTeamFinished && (
-        <div className="absolute top-2 lg:top-4 right-2 lg:right-4 bg-green-500 text-white px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-bold animate-pulse">
+        <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
           완성! ✅
         </div>
       )}
 
-      <div className={`mt-auto w-full flex flex-col items-center gap-2 lg:gap-3 pt-2 lg:pt-3 ${isTeamLocked ? 'pointer-events-none opacity-50' : ''}`}>
+      <div className={`mt-auto w-full flex flex-col items-center gap-3 pt-3 ${isTeamLocked ? 'pointer-events-none opacity-50' : ''}`}>
         {/* 첫 번째 행: 3개 */}
-        <div className="flex justify-center gap-2 lg:gap-3">
+        <div className="flex justify-center gap-3">
           {Object.keys(INGREDIENTS).slice(0, 3).map(key => (
             <button
               key={key}
               onClick={() => handleClick(key)}
               onTouchStart={() => handleClick(key)}
               disabled={isTeamLocked}
-              className={`w-16 h-16 lg:w-24 lg:h-24 bg-white/80 rounded-xl lg:rounded-2xl flex justify-center items-center cursor-pointer border-b-4 lg:border-b-8 border-gray-300 hover:-translate-y-1 active:translate-y-0 active:border-b-2 lg:active:border-b-4 transition-all text-4xl lg:text-6xl shadow-md ${
+              className={`bg-white/80 rounded-xl flex justify-center items-center cursor-pointer border-b-8 border-gray-300 hover:-translate-y-1 active:translate-y-0 active:border-b-4 transition-all shadow-md ${
                 isTeamLocked ? 'cursor-not-allowed' : ''
               } ${isTeamFinished ? 'opacity-60' : ''}`}
-              style={{ touchAction: 'manipulation' }}
+              style={{ width: '5.4rem', height: '5.4rem', fontSize: '3.15rem', touchAction: 'manipulation' }}
             >
               {INGREDIENTS[key].emoji}
             </button>
           ))}
         </div>
         {/* 두 번째 행: 4개 */}
-        <div className="flex justify-center gap-2 lg:gap-3">
+        <div className="flex justify-center gap-3">
           {Object.keys(INGREDIENTS).slice(3).map(key => (
             <button
               key={key}
               onClick={() => handleClick(key)}
               onTouchStart={() => handleClick(key)}
               disabled={isTeamLocked}
-              className={`w-16 h-16 lg:w-24 lg:h-24 bg-white/80 rounded-xl lg:rounded-2xl flex justify-center items-center cursor-pointer border-b-4 lg:border-b-8 border-gray-300 hover:-translate-y-1 active:translate-y-0 active:border-b-2 lg:active:border-b-4 transition-all text-4xl lg:text-6xl shadow-md ${
+              className={`bg-white/80 rounded-xl flex justify-center items-center cursor-pointer border-b-8 border-gray-300 hover:-translate-y-1 active:translate-y-0 active:border-b-4 transition-all shadow-md ${
                 isTeamLocked ? 'cursor-not-allowed' : ''
               } ${isTeamFinished ? 'opacity-60' : ''}`}
-              style={{ touchAction: 'manipulation' }}
+              style={{ width: '5.4rem', height: '5.4rem', fontSize: '3.15rem', touchAction: 'manipulation' }}
             >
               {INGREDIENTS[key].emoji}
             </button>

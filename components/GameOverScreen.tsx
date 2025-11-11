@@ -38,8 +38,8 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ scores, winner, winnerP
       
         <div className="flex flex-wrap justify-center gap-4 max-w-2xl mb-10">
             {winnerPlayers.map(player => (
-            <div key={player.id} className={`w-24 h-24 rounded-full bg-white flex justify-center items-center text-5xl border-8 shadow-lg ${player.team === 'blue' ? 'border-blue-500' : 'border-red-500'}`}>
-                {player.avatarEmoji}
+            <div key={player.id} className={`w-24 h-24 rounded-full bg-white flex justify-center items-center border-8 shadow-lg overflow-hidden ${player.team === 'blue' ? 'border-blue-500' : 'border-red-500'}`}>
+                <img src={player.avatarUrl} alt={`${player.name} avatar`} className="w-full h-full object-cover" loading="lazy" />
             </div>
             ))}
         </div>

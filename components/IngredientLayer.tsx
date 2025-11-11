@@ -28,11 +28,11 @@ const IngredientLayer: React.FC<IngredientLayerProps> = ({ ingredientKey, isWron
       // Sesame seeds
       content = (
         <div className="relative w-full h-full">
-            <div className="absolute top-2 left-10 w-2 h-3 bg-white rounded-full transform rotate-45"></div>
-            <div className="absolute top-5 left-20 w-2 h-3 bg-white rounded-full transform -rotate-45"></div>
-            <div className="absolute top-3 left-32 w-2 h-3 bg-white rounded-full transform rotate-12"></div>
-            <div className="absolute top-6 left-48 w-2 h-3 bg-white rounded-full transform -rotate-20"></div>
-            <div className="absolute top-2 left-52 w-2 h-3 bg-white rounded-full transform rotate-30"></div>
+            <div className="absolute top-[15%] left-[18%] w-2 h-3 bg-white rounded-full transform rotate-45"></div>
+            <div className="absolute top-[32%] left-[36%] w-2 h-3 bg-white rounded-full transform -rotate-45"></div>
+            <div className="absolute top-[20%] left-[54%] w-2 h-3 bg-white rounded-full transform rotate-12"></div>
+            <div className="absolute top-[40%] left-[72%] w-2 h-3 bg-white rounded-full transform -rotate-20"></div>
+            <div className="absolute top-[18%] right-[12%] w-2 h-3 bg-white rounded-full transform rotate-30"></div>
         </div>
       );
       break;

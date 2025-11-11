@@ -16,8 +16,8 @@ const TeamBox: React.FC<{ title: string; teamColor: string; players: Player[]; t
     <div className="grid grid-cols-5 gap-4 p-4 bg-gray-200/50 rounded-2xl min-h-[180px]">
       {players.map(player => (
         <div key={player.id} className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-white flex justify-center items-center text-5xl border-4 border-gray-300 shadow-md transform transition-transform hover:scale-110">
-              {player.avatarEmoji}
+            <div className="w-20 h-20 rounded-full bg-white flex justify-center items-center border-4 border-gray-300 shadow-md transform transition-transform hover:scale-110 overflow-hidden">
+              <img src={player.avatarUrl} alt={`${player.name} avatar`} className="w-full h-full object-cover" loading="lazy" />
             </div>
             <span className="mt-1 text-gray-700 font-sans font-bold text-sm">{player.name}</span>
         </div>

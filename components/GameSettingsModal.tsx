@@ -6,6 +6,7 @@ import {
   createSettingsUpdater,
   validateGameSettings
 } from './game-settings-types';
+import TutorialModal from './TutorialModal';
 
 const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
   onStart,
@@ -26,6 +27,8 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
     selectedLessons: availableLessons.length > 0 ? [availableLessons[0]] : [1],
     learningFocus: availableLearningFocus.length > 0 ? [availableLearningFocus[0]] : ['Easy']
   });
+
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   const {
     toggleLesson,
@@ -226,7 +229,10 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
             <div className="w-96 h-64 mb-6 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-orange-300 to-yellow-400 flex items-center justify-center">
               <span className="text-9xl">🍔</span>
             </div>
-            <button className={`${colors.bg200} ${colors.text800} px-6 py-3 rounded-full font-semibold`}>
+            <button
+              onClick={() => setIsTutorialOpen(true)}
+              className={`${colors.bg200} ${colors.text800} px-6 py-3 rounded-full font-semibold hover:${colors.bg300.replace('bg-', '')} transition-colors`}
+            >
               {gameGuideText}
             </button>
           </div>
@@ -418,6 +424,8 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
           </div>
         </div>
       </div>
+
+      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
     </div>
   );
 };

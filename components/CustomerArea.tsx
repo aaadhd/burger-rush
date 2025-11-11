@@ -22,7 +22,7 @@ const CustomerArea: React.FC<CustomerAreaProps> = ({ customer, emotion }) => {
 
   return (
     <div className="flex flex-col items-center gap-2 z-10">
-      <div className="relative w-32 h-32 bg-gray-100 rounded-full border-4 border-gray-800 flex justify-center items-center text-7xl shadow-lg">
+      <div className="relative w-[6.4rem] h-[6.4rem] bg-gray-100 rounded-full border-[3.2px] border-gray-800 flex justify-center items-center text-[3.6rem] shadow-lg">
         {customer.emoji}
         {emotion && (
           <span className={`absolute top-0 right-0 text-4xl ${emotionColor}`}>

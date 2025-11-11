@@ -78,16 +78,16 @@ export const MOCK_QUIZZES: Quiz[] = [
 ];
 
 export const MOCK_PLAYERS: Omit<Player, 'team'>[] = [
-    { id: 'p1', name: 'Emily', avatarEmoji: '👩‍🦰' },
-    { id: 'p2', name: 'John', avatarEmoji: '👨‍🦱' },
-    { id: 'p3', name: 'Olivia', avatarEmoji: '👩🏻‍🦱' },
-    { id: 'p4', name: 'Mike', avatarEmoji: '👨🏼‍🦳' },
-    { id: 'p5', name: 'James', avatarEmoji: '👨🏽‍🦱' },
-    { id: 'p6', name: 'Lily', avatarEmoji: '👩🏻‍🦳' },
-    { id: 'p7', name: 'Jacob', avatarEmoji: '🧑🏾‍🦱' },
-    { id: 'p8', name: 'Bella', avatarEmoji: '👱‍♀️' },
-    { id: 'p9', name: 'David', avatarEmoji: '🧑🏻‍🦰' },
-    { id: 'p10', name: 'Tom', avatarEmoji: '👨🏻‍🎤' },
-    { id: 'p11', name: 'Alice', avatarEmoji: '👩🏼‍🎤' },
-    { id: 'p12', name: 'Chloe', avatarEmoji: '👧🏽' }
+    { id: 'p1', name: 'Emily', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Emily' },
+    { id: 'p2', name: 'John', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=John' },
+    { id: 'p3', name: 'Olivia', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Olivia' },
+    { id: 'p4', name: 'Mike', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Mike' },
+    { id: 'p5', name: 'James', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=James' },
+    { id: 'p6', name: 'Lily', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Lily' },
+    { id: 'p7', name: 'Jacob', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Jacob' },
+    { id: 'p8', name: 'Bella', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Bella' },
+    { id: 'p9', name: 'David', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=David' },
+    { id: 'p10', name: 'Tom', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Tom' },
+    { id: 'p11', name: 'Alice', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Alice' },
+    { id: 'p12', name: 'Chloe', avatarUrl: 'https://api.dicebear.com/9.x/open-peeps/svg?seed=Chloe' }
 ];

@@ -1,8 +1,8 @@
 import React from 'react';
 import type { Team } from './types';
 import { useGameLogic } from './hooks/useGameLogic';
-import GameStartScreen from './components/GameStartScreen';
 import GameSettingsModal from './components/GameSettingsModal';
+import SplashScreen from './components/SplashScreen';
 import TeamSetupScreen from './components/TeamSetupScreen';
 import GameScreen from './components/GameScreen';
 import GameOverScreen from './components/GameOverScreen';
@@ -37,8 +37,6 @@ const App: React.FC = () => {
 
   const renderScreen = () => {
     switch (game.gameState) {
-      case 'start':
-        return <GameStartScreen onStart={game.handleOpenSettings} />;
       case 'settings':
         return (
           <GameSettingsModal
@@ -55,6 +53,8 @@ const App: React.FC = () => {
             }}
           />
         );
+      case 'splash':
+        return <SplashScreen />;
       case 'team-setup':
         return <TeamSetupScreen teams={game.teams} onShuffle={game.handleShuffleTeams} onStart={game.handleStartPlaying} />;
       case 'playing':
@@ -100,7 +100,21 @@ const App: React.FC = () => {
             </div>
         )
       default:
-        return <GameStartScreen onStart={game.handleStartGame} />;
+        return (
+          <GameSettingsModal
+            onStart={game.handleStartGameWithSettings}
+            onBack={game.handleBackToStart}
+            gameGuideText="Game Guide"
+            availableLessons={[1, 2, 3, 4, 5, 6, 7, 8]}
+            availableLearningFocus={['Vocabulary', 'Reading', 'Speaking', 'Grammar', 'Writing', 'Action Learning']}
+            maxRounds={12}
+            disabledLessons={[8]}
+            customStyles={{
+              primaryColor: 'purple',
+              buttonColor: 'cyan-500'
+            }}
+          />
+        );
     }
   };
 

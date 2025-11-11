@@ -9,15 +9,15 @@ interface TeamSetupScreenProps {
 }
 
 const TeamBox: React.FC<{ title: string; teamColor: string; players: Player[]; team: 'blue' | 'red' }> = ({ title, teamColor, players, team }) => (
-  <div className={`bg-white/80 p-6 rounded-3xl shadow-xl text-center border-t-8 border-${teamColor}-400`}>
-    <h3 className={`text-${teamColor}-600 text-5xl mb-4 flex items-center justify-center gap-3`}>
+  <div className={`bg-white/80 p-6 rounded-3xl shadow-xl text-center ${team === 'blue' ? 'border-t-8 border-blue-400' : 'border-t-8 border-red-400'}`}>
+    <h3 className={`${team === 'blue' ? 'text-blue-600' : 'text-red-600'} text-5xl mb-4 flex items-center justify-center gap-3`}>
       {title}
     </h3>
-    <div className="grid grid-cols-5 gap-4 p-4 bg-gray-200/50 rounded-2xl min-h-[180px]">
+    <div className="grid grid-cols-5 gap-4 p-4 bg-gray-200/50 rounded-2xl" style={{ minHeight: '180px' }}>
       {players.map(player => (
         <div key={player.id} className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-white flex justify-center items-center text-5xl border-4 border-gray-300 shadow-md transform transition-transform hover:scale-110">
-              {player.avatarEmoji}
+            <div className="rounded-full bg-white flex justify-center items-center border-4 border-gray-300 shadow-md transform transition-transform hover:scale-110 overflow-hidden" style={{ width: '80px', height: '80px' }}>
+              <img src={player.avatarUrl} alt={`${player.name} avatar`} className="w-full h-full object-cover" loading="lazy" />
             </div>
             <span className="mt-1 text-gray-700 font-sans font-bold text-sm">{player.name}</span>
         </div>
@@ -28,9 +28,9 @@ const TeamBox: React.FC<{ title: string; teamColor: string; players: Player[]; t
 
 const TeamSetupScreen: React.FC<TeamSetupScreenProps> = ({ teams, onShuffle, onStart }) => {
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center p-4">
+    <div style={{ width: '1280px', height: '800px' }} className="flex flex-col justify-center items-center bg-gradient-to-br from-gray-800 to-gray-900">
       <h2 className="text-7xl font-bold text-white mb-8 text-shadow-lg">TEAM SETUP</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
+      <div className="grid grid-cols-2 gap-8" style={{ width: '1150px' }}>
         <TeamBox title="Blue Team" teamColor="blue" players={teams.blue} team="blue"/>
         <TeamBox title="Red Team" teamColor="red" players={teams.red} team="red"/>
       </div>

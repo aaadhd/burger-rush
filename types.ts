@@ -1,11 +1,11 @@
 
-export type GameState = 'start' | 'settings' | 'team-setup' | 'playing' | 'game-over';
+export type GameState = 'settings' | 'splash' | 'team-setup' | 'playing' | 'game-over';
 export type Team = 'blue' | 'red';
 
 export interface Player {
   id: string;
   name: string;
-  avatarEmoji: string;
+  avatarUrl: string;
   team: Team;
 }
 
