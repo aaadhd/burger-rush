@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Team, Player, Customer, Quiz, Teams } from '../types';
 import TopBar from './TopBar';
 import TeamInfo from './TeamInfo';
@@ -7,6 +7,8 @@ import CustomerArea from './CustomerArea';
 import OrderSequence from './OrderSequence';
 import AssemblyStation from './AssemblyStation';
 import QuizModal from './QuizModal';
+import GameMenuModal from './GameMenuModal';
+import TutorialModal from './TutorialModal';
 
 interface GameScreenProps {
   round: number;
@@ -27,21 +29,77 @@ interface GameScreenProps {
   redTeamFinished: boolean;
   blueNewIngredient?: string | null;
   redNewIngredient?: string | null;
+  isPaused: boolean;
   onEndGame: () => void;
   onIngredientClick: (team: Team, ingredient: string) => void;
   onQuizAnswer: (answer: string) => void;
+  onExitGame: () => void;
+  onPause: () => void;
 }
 
 const GameScreen: React.FC<GameScreenProps> = (props) => {
-  // 동시 터치를 위해 라운드가 활성화되어 있으면 모든 팀이 클릭 가능
-  const isBlueLocked = !props.isRoundActive;
-  const isRedLocked = !props.isRoundActive;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuGuideOpen, setIsMenuGuideOpen] = useState(false);
+
+  // 라운드가 비활성화되거나 일시정지 중이면 재료 클릭 불가
+  const isBlueLocked = !props.isRoundActive || props.isPaused;
+  const isRedLocked = !props.isRoundActive || props.isPaused;
+
+  const handlePause = () => {
+    props.onPause();
+  };
+
+  const handleMenuButton = () => {
+    setIsMenuOpen(true);
+    props.onPause();
+  };
+
+  const handleCloseMenu = () => {
+    setIsMenuOpen(false);
+    if (props.isPaused) {
+      props.onPause();
+    }
+  };
+
+  const handleOpenGuide = () => {
+    setIsMenuOpen(false);
+    setIsMenuGuideOpen(true);
+  };
+
+  const handleCloseGuide = () => {
+    setIsMenuGuideOpen(false);
+    setIsMenuOpen(false);
+    if (props.isPaused) {
+      props.onPause();
+    }
+  };
+
+  const handleEndGameFromMenu = () => {
+    setIsMenuOpen(false);
+    if (props.isPaused) {
+      props.onPause();
+    }
+    props.onEndGame();
+  };
+
+  const handleExitFromMenu = () => {
+    setIsMenuOpen(false);
+    setIsMenuGuideOpen(false);
+    if (props.isPaused) {
+      props.onPause();
+    }
+    props.onExitGame();
+  };
+
+  const handleResume = () => {
+    props.onPause();
+  };
 
   return (
     <div className="game-container relative flex flex-col justify-between h-full">
-      <TopBar round={props.round} onEndGame={props.onEndGame} />
+      <TopBar round={props.round} onPause={handlePause} onOpenMenu={handleMenuButton} buttonsDisabled={isMenuOpen} />
 
-      <div className="flex justify-between items-start px-8 pt-4" style={{ marginTop: '56px' }}>
+      <div className="flex justify-between items-start px-8 pt-4" style={{ marginTop: '80px' }}>
         <TeamInfo
           team="blue"
           score={props.scores.blue}
@@ -84,6 +142,30 @@ const GameScreen: React.FC<GameScreenProps> = (props) => {
       </div>
 
       {props.quiz && <QuizModal quiz={props.quiz} onAnswer={props.onQuizAnswer} />}
+
+      {props.isPaused && !isMenuOpen && !isMenuGuideOpen && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-[1100] font-[Pretendard]">
+          <div className="bg-white/95 rounded-3xl px-12 py-10 text-center shadow-2xl flex flex-col items-center gap-6">
+            <h2 className="text-5xl font-bold text-slate-800">Paused</h2>
+            <button
+              onClick={handleResume}
+              className="px-8 py-3 rounded-full bg-green-500 hover:bg-green-600 text-white text-xl font-bold transition-transform transform hover:scale-105 shadow-lg"
+            >
+              Resume
+            </button>
+          </div>
+        </div>
+      )}
+
+      <GameMenuModal
+        isOpen={isMenuOpen}
+        onClose={handleCloseMenu}
+        onOpenGuide={handleOpenGuide}
+        onEndGame={handleEndGameFromMenu}
+        onExit={handleExitFromMenu}
+        buttonLabels={{ menuTitle: 'Game Menu', guide: 'Game Guide', endGame: 'End Game', exit: 'Exit' }}
+      />
+      <TutorialModal isOpen={isMenuGuideOpen} onClose={handleCloseGuide} variant="stage" />
     </div>
   );
 };

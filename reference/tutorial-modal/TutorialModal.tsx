@@ -11,44 +11,64 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     image: '/tutorial/1.jpg',
     title: 'Team Up!',
     description:
-      "It's Team A vs. Team B! In each round, one player from each team gets to play.",
+      "It's Team A vs Team B! Both teams try to win in each round!",
   },
   {
     image: '/tutorial/2.jpg',
-    title: 'Make the Burger!',
+    title: 'Two Ways to Play!',
     description:
-      'Look at the order. Touch the food in the correct order to make the burger. Be quick!',
+      'There are two ways to play: Trace Mode and Draw Mode. Let me show you both!',
   },
   {
     image: '/tutorial/3.jpg',
-    title: 'Answer the Quiz!',
+    title: 'Trace Mode',
     description:
-      'Make the burger first to get a quiz. If you answer right, you get coins!',
+      'Follow the dotted lines with your finger. Write the word nicely on the lines!',
   },
   {
     image: '/tutorial/4.jpg',
-    title: 'Get a Combo!',
+    title: 'Draw Mode',
     description:
-      'Answer many quizzes in a row to get a combo bonus and extra coins!',
+      'Look at the picture. Think of the word and write it by yourself!',
   },
   {
     image: '/tutorial/5.jpg',
-    title: 'The Winning Team!',
+    title: 'Do Your Best!',
     description:
-      'The team with the most coins at the end wins! Ready to play?',
+      'Write well to win! Try your best!',
+  },
+  {
+    image: '/tutorial/6.jpg',
+    title: 'Answer the Quiz!',
+    description:
+      'The winning team gets a quiz! Answer it right to get more points!',
+  },
+  {
+    image: '/tutorial/7.jpg',
+    title: 'Get Points & Win!',
+    description:
+      'Play all the rounds and answer the quiz. The team with more points wins!',
   },
 ];
 
 interface TutorialModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /**
+   * 'global'  - viewport 전체를 덮는 레이어 (예: 세팅 화면)
+   * 'stage'   - 1280×800 등 고정 스테이지 내부에만 표시할 때 사용
+   */
+  variant?: 'global' | 'stage';
 }
 
-const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
+const TutorialModal: React.FC<TutorialModalProps> = ({
+  isOpen,
+  onClose,
+  variant = 'global',
+}) => {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    // Reset to first step when modal is re-opened
     if (isOpen) {
       setCurrentStep(0);
     }
@@ -67,7 +87,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
     if (!isLastStep) {
       setCurrentStep(currentStep + 1);
     } else {
-      onClose(); // On the last step, the button closes the modal
+      onClose();
     }
   };
 
@@ -77,8 +97,13 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const wrapperPositionClass =
+    variant === 'stage' ? 'absolute inset-0' : 'fixed inset-0';
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
+    <div
+      className={`${wrapperPositionClass} bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4`}
+    >
       <button
         onClick={onClose}
         className="absolute focus:outline-none"
@@ -92,18 +117,18 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
         className="mx-auto flex flex-col rounded-[32px] border border-white/40 bg-gradient-to-br from-white via-white to-slate-100 shadow-[0_30px_80px_rgba(15,23,42,0.35)] transform transition-all duration-300 animate-modal-enter overflow-hidden font-[Pretendard]"
         style={{ width: '1000px', minHeight: '640px', padding: '28px 32px 32px 32px' }}
       >
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-24 -left-32 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl"></div>
-            <div className="absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-purple-200/30 blur-3xl"></div>
-          </div>
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -left-32 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl"></div>
+          <div className="absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-purple-200/30 blur-3xl"></div>
+        </div>
 
-          <div className="relative z-10 flex items-center justify-start gap-4">
-            <div className="text-left">
-              <h1 className="text-3xl font-bold text-slate-900">How to Play</h1>
-              <p className="sr-only">Step {stepNumber} of {totalSteps}</p>
-              <p className="sr-only">팀 버거 챌린지를 빠르게 익혀보세요!</p>
-            </div>
+        <div className="relative z-10 flex items-center justify-start gap-4">
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-slate-900">How to Play</h1>
+            <p className="sr-only">Step {stepNumber} of {totalSteps}</p>
+            <p className="sr-only">팀 버거 챌린지를 빠르게 익혀보세요!</p>
           </div>
+        </div>
 
         <div className="relative z-10 flex flex-col items-center text-center flex-1 mt-2">
           <div className="relative w-full flex-1 mt-3">
@@ -150,7 +175,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
               onClick={handleNext}
               className="rounded-full bg-yellow-400 px-10 py-3 text-base font-bold text-amber-900 hover:bg-yellow-500 focus:outline-none"
             >
-              {isLastStep ? "Close" : 'Next'}
+              {isLastStep ? 'Close' : 'Next'}
             </button>
           </div>
         </div>
@@ -176,3 +201,4 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default TutorialModal;
+

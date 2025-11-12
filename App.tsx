@@ -78,9 +78,12 @@ const App: React.FC = () => {
             redTeamFinished={game.redTeamFinished}
             blueNewIngredient={game.blueNewIngredient}
             redNewIngredient={game.redNewIngredient}
+            isPaused={game.isPaused}
             onEndGame={game.handleEndGame}
             onIngredientClick={game.handleIngredientClick}
             onQuizAnswer={game.handleQuizAnswer}
+            onExitGame={game.handleExitGame}
+            onPause={game.handlePause}
           />
         );
       case 'game-over':

@@ -32,6 +32,8 @@ export const useGameLogic = () => {
     const [redTeamFinished, setRedTeamFinished] = useState(false);
     const [roundEndTime, setRoundEndTime] = useState<number | null>(null);
     const roundTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // 파티클 효과를 위한 상태
     const [showBlueSuccess, setShowBlueSuccess] = useState(false);
@@ -41,6 +43,9 @@ export const useGameLogic = () => {
     // 새로 추가된 재료 추적 (애니메이션용)
     const [blueNewIngredient, setBlueNewIngredient] = useState<string | null>(null);
     const [redNewIngredient, setRedNewIngredient] = useState<string | null>(null);
+
+    // 일시정지 상태
+    const [isPaused, setIsPaused] = useState(false);
 
     const showMessage = (msg: string, duration = 1500) => {
         setMessage(msg);
@@ -125,10 +130,18 @@ export const useGameLogic = () => {
         setBlueTeamFinished(false);
         setRedTeamFinished(false);
         setRoundEndTime(null);
+
+        // 모든 타이머 정리
         if (roundTimeoutRef.current) {
             clearTimeout(roundTimeoutRef.current);
         }
-        
+        if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+        }
+        if (messageTimeoutRef.current) {
+            clearTimeout(messageTimeoutRef.current);
+        }
+
         setCustomer(MOCK_CUSTOMERS[Math.floor(Math.random() * MOCK_CUSTOMERS.length)]);
         setOrder(MOCK_ORDERS[Math.floor(Math.random() * MOCK_ORDERS.length)]);
         setBlueAssembly([]);
@@ -140,35 +153,43 @@ export const useGameLogic = () => {
         setRedNewIngredient(null);
 
         showMessage(`Round ${round}`, 1500);
-        setTimeout(() => {
+        const msgTimeout = setTimeout(() => {
+            if (isPaused) return;
+
             let countdown = 3;
             const interval = setInterval(() => {
+                if (isPaused) {
+                    clearInterval(interval);
+                    return;
+                }
+
                 if (countdown > 0) {
                     showMessage(`${countdown}`, 900);
-                    playCountdown(countdown); // 카운트다운 효과음
+                    playCountdown(countdown);
                     countdown--;
                 } else {
                     showMessage('Go!', 900);
-                    playCountdown(0); // "Go!" 효과음
+                    playCountdown(0);
                     setIsRoundActive(true);
 
-                    // 배경음악 시작
                     startBackgroundMusic();
 
-                    // 라운드 타임아웃 설정 (30초)
                     const timeout = setTimeout(() => {
-                        if (isRoundActive) {
+                        if (isRoundActive && !isPaused) {
                             endRound();
                         }
                     }, 30000);
                     roundTimeoutRef.current = timeout;
 
                     clearInterval(interval);
+                    countdownIntervalRef.current = null;
                 }
             }, 1000);
-        }, 1500)
+            countdownIntervalRef.current = interval;
+        }, 1500);
+        messageTimeoutRef.current = msgTimeout;
 
-    }, [round]);
+    }, [round, isPaused]);
 
     const endRound = useCallback(() => {
         setIsRoundActive(false);
@@ -202,7 +223,7 @@ export const useGameLogic = () => {
     };
     
     const handleIngredientClick = (team: Team, ingredient: string) => {
-        if (!isRoundActive) {
+        if (!isRoundActive || isPaused) {
             return;
         }
 
@@ -384,6 +405,32 @@ export const useGameLogic = () => {
         setGameState('settings');
     };
 
+    const handlePause = () => {
+        setIsPaused(prev => {
+            const newPaused = !prev;
+
+            if (newPaused) {
+                // 일시정지: 모든 타이머 멈추기
+                if (roundTimeoutRef.current) {
+                    clearTimeout(roundTimeoutRef.current);
+                    roundTimeoutRef.current = null;
+                }
+                if (countdownIntervalRef.current) {
+                    clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
+                }
+                if (messageTimeoutRef.current) {
+                    clearTimeout(messageTimeoutRef.current);
+                    messageTimeoutRef.current = null;
+                }
+                // 배경음악 정지
+                stopBackgroundMusic();
+            }
+
+            return newPaused;
+        });
+    };
+
     return {
         gameState,
         round,
@@ -410,6 +457,7 @@ export const useGameLogic = () => {
         showComboEffect,
         blueNewIngredient,
         redNewIngredient,
+        isPaused,
         handleOpenSettings,
         handleBackToStart,
         handleStartGameWithSettings,
@@ -421,5 +469,6 @@ export const useGameLogic = () => {
         handleEndGame,
         handlePlayAgain,
         handleExitGame,
+        handlePause,
     };
 };

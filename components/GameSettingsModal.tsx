@@ -7,6 +7,7 @@ import {
   validateGameSettings
 } from './game-settings-types';
 import TutorialModal from './TutorialModal';
+import SettingsGuideModal from './SettingsGuideModal';
 
 const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
   onStart,
@@ -29,6 +30,7 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
   });
 
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isSettingsGuideOpen, setIsSettingsGuideOpen] = useState(false);
 
   const {
     toggleLesson,
@@ -205,7 +207,10 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
         {/* Right Side Buttons */}
         <div className="flex gap-3">
           {/* Info Button */}
-          <button className={`w-10 h-10 ${colors.bg300} ${colors.bg400.replace('bg-', 'hover:bg-')} text-white rounded-full flex items-center justify-center transition-all shadow-sm`}>
+          <button
+            onClick={() => setIsSettingsGuideOpen(true)}
+            className={`w-10 h-10 ${colors.bg300} ${colors.bg400.replace('bg-', 'hover:bg-')} text-white rounded-full flex items-center justify-center transition-all shadow-sm`}
+          >
             <span className="text-sm font-bold">i</span>
           </button>
 
@@ -426,6 +431,7 @@ const GameSettingsModal: React.FC<GameSettingsModalProps> = ({
       </div>
 
       <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
+      <SettingsGuideModal isOpen={isSettingsGuideOpen} onClose={() => setIsSettingsGuideOpen(false)} />
     </div>
   );
 };
