@@ -26,11 +26,12 @@ export const useGameLogic = () => {
     const [combos, setCombos] = useState({ blue: 0, red: 0 });
     const [gameOverSubState, setGameOverSubState] = useState<GameOverSubState | null>(null);
 
-    // 동시 터치를 위한 새로운 상태들
+    // 동시 터치를 위한 상태들
     const [isRoundActive, setIsRoundActive] = useState(false);
     const [blueTeamFinished, setBlueTeamFinished] = useState(false);
     const [redTeamFinished, setRedTeamFinished] = useState(false);
-    const [roundEndTime, setRoundEndTime] = useState<number | null>(null);
+
+    // 타이머 refs
     const roundTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,11 +48,27 @@ export const useGameLogic = () => {
     // 일시정지 상태
     const [isPaused, setIsPaused] = useState(false);
 
+    // 타이머 정리 유틸 함수
+    const clearAllTimers = () => {
+        if (roundTimeoutRef.current) {
+            clearTimeout(roundTimeoutRef.current);
+            roundTimeoutRef.current = null;
+        }
+        if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+        }
+        if (messageTimeoutRef.current) {
+            clearTimeout(messageTimeoutRef.current);
+            messageTimeoutRef.current = null;
+        }
+    };
+
     const showMessage = (msg: string, duration = 1500) => {
         setMessage(msg);
         setTimeout(() => setMessage(null), duration);
     };
-    
+
     const showCombo = (content: React.ReactNode, duration = 2500) => {
         setComboMessage(content);
         setTimeout(() => setComboMessage(null), duration);
@@ -129,18 +146,8 @@ export const useGameLogic = () => {
         setIsRoundActive(false);
         setBlueTeamFinished(false);
         setRedTeamFinished(false);
-        setRoundEndTime(null);
 
-        // 모든 타이머 정리
-        if (roundTimeoutRef.current) {
-            clearTimeout(roundTimeoutRef.current);
-        }
-        if (countdownIntervalRef.current) {
-            clearInterval(countdownIntervalRef.current);
-        }
-        if (messageTimeoutRef.current) {
-            clearTimeout(messageTimeoutRef.current);
-        }
+        clearAllTimers();
 
         setCustomer(MOCK_CUSTOMERS[Math.floor(Math.random() * MOCK_CUSTOMERS.length)]);
         setOrder(MOCK_ORDERS[Math.floor(Math.random() * MOCK_ORDERS.length)]);
@@ -193,9 +200,6 @@ export const useGameLogic = () => {
 
     const endRound = useCallback(() => {
         setIsRoundActive(false);
-        setRoundEndTime(Date.now());
-
-        // 배경음악 정지
         stopBackgroundMusic();
 
         // 두 팀 모두 완성하지 못한 경우
@@ -365,7 +369,9 @@ export const useGameLogic = () => {
     };
 
     const resetGame = () => {
-        setGameState('start');
+        clearAllTimers();
+        stopBackgroundMusic();
+
         setRound(1);
         setScores({ blue: 0, red: 0 });
         setTeams({ blue: [], red: [] });
@@ -384,16 +390,10 @@ export const useGameLogic = () => {
         setIsRoundActive(false);
         setBlueTeamFinished(false);
         setRedTeamFinished(false);
-        setRoundEndTime(null);
         setBlueNewIngredient(null);
         setRedNewIngredient(null);
-        if (roundTimeoutRef.current) {
-            clearTimeout(roundTimeoutRef.current);
-        }
-
-        // 배경음악 정지
-        stopBackgroundMusic();
-    }
+        setIsPaused(false);
+    };
 
     const handlePlayAgain = () => {
         resetGame();
@@ -410,20 +410,7 @@ export const useGameLogic = () => {
             const newPaused = !prev;
 
             if (newPaused) {
-                // 일시정지: 모든 타이머 멈추기
-                if (roundTimeoutRef.current) {
-                    clearTimeout(roundTimeoutRef.current);
-                    roundTimeoutRef.current = null;
-                }
-                if (countdownIntervalRef.current) {
-                    clearInterval(countdownIntervalRef.current);
-                    countdownIntervalRef.current = null;
-                }
-                if (messageTimeoutRef.current) {
-                    clearTimeout(messageTimeoutRef.current);
-                    messageTimeoutRef.current = null;
-                }
-                // 배경음악 정지
+                clearAllTimers();
                 stopBackgroundMusic();
             }
 
